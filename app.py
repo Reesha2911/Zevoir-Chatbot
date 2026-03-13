@@ -6,7 +6,8 @@ Serves the chat UI and handles userId queries against the JSONPlaceholder API.
 Run:
     uvicorn app:app --reload
 Then open:
-    http://localhost:8000
+    http://localhost:8000        → White theme
+    http://localhost:8000/dark  → Dark theme
 """
 
 from fastapi import FastAPI
@@ -110,8 +111,14 @@ class QueryResponse(BaseModel):
 
 @app.get("/", include_in_schema=False)
 async def root():
-    """Serve the chat UI."""
+    """Serve the white theme chat UI."""
     return FileResponse("static/index.html")
+
+
+@app.get("/dark", include_in_schema=False)
+async def dark():
+    """Serve the dark theme chat UI."""
+    return FileResponse("static/index2.html")
 
 
 @app.post("/query", response_model=QueryResponse)
