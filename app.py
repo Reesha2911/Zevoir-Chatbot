@@ -180,7 +180,7 @@ class QueryResponse(BaseModel):
 @app.get("/", include_in_schema=False)
 async def root():
     """Serve the white theme chat UI."""
-    return FileResponse("static/index2.html")
+    return FileResponse("static/index.html")
 
 @app.post("/query", response_model=QueryResponse)
 async def query(body: QueryRequest):
