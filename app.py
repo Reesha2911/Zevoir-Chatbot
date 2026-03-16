@@ -6,8 +6,8 @@ Serves the chat UI and handles userId queries against the JSONPlaceholder API.
 Run:
     uvicorn app:app --reload
 Then open:
-    http://localhost:8000        → Dark theme
-    http://localhost:8000/white → White theme
+    http://localhost:8000       -> White theme
+    http://localhost:8000/dark -> Dark theme
 """
 
 from fastapi import FastAPI
@@ -26,8 +26,77 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ── Cache ──────────────────────────────────────────────────────────────────────
-# Store todos after first download so we don't re-download every query
 _todos_cache = None
+
+
+# ── Chatbot keyword responses ──────────────────────────────────────────────────
+CHATBOT_RESPONSES = {
+    ("hi", "hello", "hey", "hiya", "howdy"): (
+        "Hello! 👋 Welcome to Nimbus Support.\n"
+        "How can I assist you today?"
+    ),
+    ("help", "i need help", "assist", "support", "i need assistance"): (
+        "Sure! I'm here to help 😊\n"
+        "Please choose one of the options below:\n\n"
+        "1️⃣ Account Issues\n"
+        "2️⃣ Order Status\n"
+        "3️⃣ Technical Support\n"
+        "4️⃣ Talk to a Human Agent\n\n"
+        "Or type a userId (1-10) to get a todo summary!"
+    ),
+    ("where is my order", "order status", "track order", "my order"): (
+        "I can help with that! 📦\n"
+        "Please enter your Order ID to check the latest status."
+    ),
+    ("i can't login", "cant login", "login issue", "can't log in", "login problem", "forgot password"): (
+        "No worries! 🔐\n"
+        "You can reset your password using the 'Forgot Password' option.\n"
+        "Would you like me to send you the reset link?"
+    ),
+    ("otp", "i didn't receive otp", "no otp", "resend otp", "didn't get otp"): (
+        "Sometimes OTPs take a few seconds to arrive. ⏳\n"
+        "Please wait 30 seconds and try again.\n"
+        "Would you like me to resend the OTP?"
+    ),
+    ("services", "tell me about your services", "what do you offer", "what services"): (
+        "We offer several services to help businesses grow:\n\n"
+        "✅ AI Automation\n"
+        "✅ Data Analytics\n"
+        "✅ Chatbot Development\n"
+        "✅ Dashboard & Reporting\n\n"
+        "Would you like more details about any of these?"
+    ),
+    ("demo", "i want a demo", "book a demo", "schedule demo", "free demo"): (
+        "Great! 🚀\n"
+        "Please share your name, email, and company name,\n"
+        "and our team will schedule a free demo for you."
+    ),
+    ("human", "talk to a person", "real person", "agent", "speak to someone", "talk to someone"): (
+        "Sure 👍\n"
+        "I'm connecting you with one of our support specialists.\n"
+        "Please wait a moment..."
+    ),
+    ("thanks", "thank you", "thankyou", "thx", "ty", "thank u"): (
+        "You're welcome! 😊\n"
+        "If you need anything else, feel free to ask."
+    ),
+    ("bye", "goodbye", "see you", "see ya", "cya", "take care", "good bye"): (
+        "Thank you for visiting! 👋\n"
+        "Have a wonderful day."
+    ),
+}
+
+
+def check_chatbot_response(user_input: str):
+    """
+    Check if the user message matches any keyword.
+    Returns a response string if matched, or None if no match.
+    """
+    text = user_input.lower().strip()
+    for keywords, response in CHATBOT_RESPONSES.items():
+        if text in keywords:
+            return response
+    return None
 
 
 def fetch_todos() -> list:
@@ -66,10 +135,9 @@ def fetch_todos() -> list:
 
 def build_summary(user_id: int) -> str:
     """
-    Filter todos by userId, compute stats, and return a formatted summary string.
+    Filter todos by userId, compute stats, return a formatted summary.
     """
     todos = fetch_todos()
-
     user_todos = [t for t in todos if t.get("userId") == user_id]
     total = len(user_todos)
 
@@ -111,7 +179,7 @@ class QueryResponse(BaseModel):
 
 @app.get("/", include_in_schema=False)
 async def root():
-    """Serve the dark theme chat UI."""
+    """Serve the white theme chat UI."""
     return FileResponse("static/index2.html")
 
 
@@ -124,7 +192,8 @@ async def dark():
 @app.post("/query", response_model=QueryResponse)
 async def query(body: QueryRequest):
     """
-    Receive a chat message, validate it, fetch todos, return a formatted reply.
+    Receive a chat message, check for keywords first,
+    then validate as userId and return a formatted reply.
     """
     user_input = body.message.strip()
 
@@ -134,12 +203,17 @@ async def query(body: QueryRequest):
             reply="Looks like you forgot to type something! 😊 Please enter a number between 1 and 10."
         )
 
+    # Check keyword responses first (hi, bye, help, etc.)
+    chatbot_reply = check_chatbot_response(user_input)
+    if chatbot_reply:
+        return QueryResponse(reply=chatbot_reply)
+
     # Must be a whole number
     try:
         user_id = int(user_input)
     except ValueError:
         return QueryResponse(
-            reply=f"Oops! \"{user_input}\" doesn't look like a number. 😅\nPlease enter a whole number between 1 and 10."
+            reply=f'Oops! "{user_input}" does not look like a number. 😅\nPlease enter a whole number between 1 and 10.'
         )
 
     # Must be between 1 and 10
@@ -151,140 +225,18 @@ async def query(body: QueryRequest):
     # Fetch and compute
     try:
         reply = build_summary(user_id)
-
     except ConnectionError as exc:
         reply = (
             "Oh no! I couldn't reach the API right now. 😟\n"
             "Please check your internet connection and try again!\n\n"
             f"Details: {exc}"
         )
-
     except ValueError as exc:
         reply = (
             "Something unexpected came back from the API. 🤔\n"
             "Please try again in a moment!\n\n"
             f"Details: {exc}"
         )
-
-    except Exception as exc:
-        reply = f"Oops! Something went wrong on my end. 😬 Please try again!\n\nDetails: {exc}"
-
-    return QueryResponse(reply=reply)
-
-
-# ── Health check ───────────────────────────────────────────────────────────────
-
-@app.get("/health")
-async def health():
-    """Server liveness check."""
-    return {
-        "status": "ok",
-        "cache_loaded": _todos_cache is not None,
-        "cached_todos": len(_todos_cache) if _todos_cache else 0,
-    }
-
-def build_summary(user_id: int) -> str:
-    """
-    Filter todos by userId, compute stats, and return a formatted summary string.
-    """
-    todos = fetch_todos()
-
-    user_todos = [t for t in todos if t.get("userId") == user_id]
-    total = len(user_todos)
-
-    if total == 0:
-        return (
-            f"Hmm, I couldn't find any todos for userId {user_id}. 🤔\n"
-            "The valid userIds are 1 to 10. Give one of those a try!"
-        )
-
-    completed = sum(1 for t in user_todos if t.get("completed") is True)
-    pending   = total - completed
-    pct       = (completed / total) * 100
-
-    first_five = "\n".join(
-        f"  • {t.get('title', '(no title)')}"
-        for t in user_todos[:5]
-    )
-
-    return (
-        f"Here's the summary for userId {user_id}! 🎉\n\n"
-        f"📋 Total todos:   {total}\n"
-        f"✅ Completed:     {completed}\n"
-        f"⏳ Pending:       {pending}\n"
-        f"📊 Completion:    {pct:.2f}%\n\n"
-        f"First 5 titles:\n{first_five}"
-    )
-
-
-# ── Schemas ────────────────────────────────────────────────────────────────────
-
-class QueryRequest(BaseModel):
-    message: str
-
-class QueryResponse(BaseModel):
-    reply: str
-
-
-# ── Routes ─────────────────────────────────────────────────────────────────────
-
-@app.get("/", include_in_schema=False)
-async def root():
-    """Serve the dark theme chat UI."""
-    return FileResponse("static/index2.html")
-
-
-@app.get("/white", include_in_schema=False)
-async def white():
-    """Serve the white theme chat UI."""
-    return FileResponse("static/index.html")
-
-
-@app.post("/query", response_model=QueryResponse)
-async def query(body: QueryRequest):
-    """
-    Receive a chat message, validate it, fetch todos, return a formatted reply.
-    """
-    user_input = body.message.strip()
-
-    # Empty input check
-    if not user_input:
-        return QueryResponse(
-            reply="Looks like you forgot to type something! 😊 Please enter a number between 1 and 10."
-        )
-
-    # Must be a whole number
-    try:
-        user_id = int(user_input)
-    except ValueError:
-        return QueryResponse(
-            reply=f"Oops! \"{user_input}\" doesn't look like a number. 😅\nPlease enter a whole number between 1 and 10."
-        )
-
-    # Must be between 1 and 10
-    if user_id < 1 or user_id > 10:
-        return QueryResponse(
-            reply=f"Hmm, {user_id} is out of range! 🙈\nThe valid userIds are 1 to 10. Please try one of those!"
-        )
-
-    # Fetch and compute
-    try:
-        reply = build_summary(user_id)
-
-    except ConnectionError as exc:
-        reply = (
-            "Oh no! I couldn't reach the API right now. 😟\n"
-            "Please check your internet connection and try again!\n\n"
-            f"Details: {exc}"
-        )
-
-    except ValueError as exc:
-        reply = (
-            "Something unexpected came back from the API. 🤔\n"
-            "Please try again in a moment!\n\n"
-            f"Details: {exc}"
-        )
-
     except Exception as exc:
         reply = f"Oops! Something went wrong on my end. 😬 Please try again!\n\nDetails: {exc}"
 
