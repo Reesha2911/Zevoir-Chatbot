@@ -6,8 +6,7 @@ Serves the chat UI and handles userId queries against the JSONPlaceholder API.
 Run:
     uvicorn app:app --reload
 Then open:
-    http://localhost:8000       -> White theme
-    http://localhost:8000/dark -> Dark theme
+    http://localhost:8000
 """
 
 from fastapi import FastAPI
@@ -32,7 +31,7 @@ _todos_cache = None
 # ── Chatbot keyword responses ──────────────────────────────────────────────────
 CHATBOT_RESPONSES = {
     ("hi", "hello", "hey", "hiya", "howdy"): (
-        "Hello! 👋 Welcome to Nimbus Support.\n"
+        "Hello! 👋 Welcome to Zevoir Support.\n"
         "How can I assist you today?"
     ),
     ("help", "i need help", "assist", "support", "i need assistance"): (
@@ -48,7 +47,7 @@ CHATBOT_RESPONSES = {
         "I can help with that! 📦\n"
         "Please enter your Order ID to check the latest status."
     ),
-    ("i can't login", "cant login", "login issue", "can't log in", "login problem", "forgot password"): (
+    ("i can't login", "cant login", "i cant login", "login issue", "can't log in", "cant log in", "login problem", "forgot password"): (
         "No worries! 🔐\n"
         "You can reset your password using the 'Forgot Password' option.\n"
         "Would you like me to send you the reset link?"
@@ -80,22 +79,47 @@ CHATBOT_RESPONSES = {
         "You're welcome! 😊\n"
         "If you need anything else, feel free to ask."
     ),
+    ("yes", "yeah", "yep", "sure", "ok", "okay", "no", "nope", "nah"): (
+        "Got it! 😊\n"
+        "If you have any other questions, feel free to ask.\n"
+        "Or type a userId from 1 to 10 to get a todo summary!"
+    ),
     ("bye", "goodbye", "see you", "see ya", "cya", "take care", "good bye"): (
         "Thank you for visiting! 👋\n"
         "Have a wonderful day."
     ),
 }
 
+# Help response used for "contains help" check
+HELP_RESPONSE = (
+    "Sure! I'm here to help 😊\n"
+    "Please choose one of the options below:\n\n"
+    "1️⃣ Account Issues\n"
+    "2️⃣ Order Status\n"
+    "3️⃣ Technical Support\n"
+    "4️⃣ Talk to a Human Agent\n\n"
+    "Or type a userId (1-10) to get a todo summary!"
+)
+
 
 def check_chatbot_response(user_input: str):
     """
     Check if the user message matches any keyword.
+    Also checks if message CONTAINS the word 'help' anywhere.
     Returns a response string if matched, or None if no match.
     """
     text = user_input.lower().strip()
+
+    # Check exact match first
     for keywords, response in CHATBOT_RESPONSES.items():
         if text in keywords:
             return response
+
+    # Check if message CONTAINS the word "help" anywhere
+    # e.g. "help me", "can you help", "i need some help with this"
+    if "help" in text:
+        return HELP_RESPONSE
+
     return None
 
 
@@ -179,8 +203,9 @@ class QueryResponse(BaseModel):
 
 @app.get("/", include_in_schema=False)
 async def root():
-    """Serve the white theme chat UI."""
+    """Serve the chat UI."""
     return FileResponse("static/index.html")
+
 
 @app.post("/query", response_model=QueryResponse)
 async def query(body: QueryRequest):
