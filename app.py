@@ -182,13 +182,6 @@ async def root():
     """Serve the white theme chat UI."""
     return FileResponse("static/index2.html")
 
-
-@app.get("/dark", include_in_schema=False)
-async def dark():
-    """Serve the dark theme chat UI."""
-    return FileResponse("static/index.html")
-
-
 @app.post("/query", response_model=QueryResponse)
 async def query(body: QueryRequest):
     """
