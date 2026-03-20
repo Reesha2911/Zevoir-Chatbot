@@ -17,6 +17,7 @@ import urllib.request
 import urllib.error
 import json
 import ssl
+import re
 
 # Fix for SSL certificate issues on some Macs
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -253,6 +254,13 @@ def check_chatbot_response(user_input: str):
         for kw in keywords:
             if kw in text:
                 return response
+
+    # Detect email address anywhere in the message
+    if re.search(r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}', user_input):
+        return (
+            "Thanks! 😊 A team member will connect with you shortly.\n"
+            "We'll reach out to you at the email you provided. 📧"
+        )
 
     # Fallback: message contains "help" anywhere
     if "help" in text:
