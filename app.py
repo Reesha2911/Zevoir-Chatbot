@@ -31,8 +31,8 @@ _todos_cache = None
 # ── Chatbot keyword responses ──────────────────────────────────────────────────
 CHATBOT_RESPONSES = {
     ("hi", "hello", "hey", "hiya", "howdy"): (
-        "Hello! 👋 Welcome to Zevoir Support.\n"
-        "How can I assist you today?"
+        "Hey there! 👋 Welcome to Zevoir Technologies.\n"
+        "What brings you here today?"
     ),
     ("help", "i need help", "assist", "support", "i need assistance"): (
         "Sure! I'm here to help 😊\n"
@@ -42,6 +42,17 @@ CHATBOT_RESPONSES = {
         "3️⃣ Technical Support\n"
         "4️⃣ Talk to a Human Agent\n\n"
         "Or type a userId (1-10) to get a todo summary!"
+    ),
+    ("i need help with my business", "help with my business", "my business", "business"): (
+        "That's great! 😊 Are you looking for a website, AI solution, or something else?"
+    ),
+    ("maybe ai", "ai solution", "artificial intelligence", "i want ai"): (
+        "Awesome choice 🚀 AI can really boost efficiency.\n"
+        "Are you thinking about automation, chatbots, or data insights?"
+    ),
+    ("automation", "chatbot automation", "data insights", "ai automation"): (
+        "Great choice! 💡 We've helped many businesses save time and costs with AI automation.\n"
+        "Would you like to see how it works for your industry?"
     ),
     ("where is my order", "order status", "track order", "my order"): (
         "I can help with that! 📦\n"
@@ -57,13 +68,58 @@ CHATBOT_RESPONSES = {
         "Please wait 30 seconds and try again.\n"
         "Would you like me to resend the OTP?"
     ),
-    ("services", "tell me about your services", "what do you offer", "what services"): (
-        "We offer several services to help businesses grow:\n\n"
-        "✅ AI Automation\n"
-        "✅ Data Analytics\n"
-        "✅ Chatbot Development\n"
-        "✅ Dashboard & Reporting\n\n"
-        "Would you like more details about any of these?"
+    ("services", "what services do you offer", "tell me about your services", "what do you offer", "what services"): (
+        "We help businesses grow with:\n\n"
+        "🤖 AI & Automation\n"
+        "📊 Data Analytics\n"
+        "☁️ Cloud Services\n"
+        "💻 Web & Mobile Development\n\n"
+        "What are you most interested in?"
+    ),
+    ("web development", "web dev", "website development"): (
+        "Nice 👍 Are you planning a new website or upgrading an existing one?"
+    ),
+    ("new website", "build a website", "create a website"): (
+        "Perfect! We can design and build a fast, modern site for you.\n"
+        "Would you like a quick consultation?"
+    ),
+    ("can you build a chatbot", "build a chatbot", "chatbot", "create a chatbot"): (
+        "Absolutely! 🤖 We create smart chatbots for customer support, automation, and sales."
+    ),
+    ("will it work like you", "like you", "work like you", "similar to you"): (
+        "Pretty close 😄 It can answer questions, guide users, and even capture leads."
+    ),
+    ("sounds good", "sounds great", "that sounds good", "nice"): (
+        "Great! Want me to connect you with our AI team for a demo?"
+    ),
+    ("i have a lot of data", "a lot of data", "data but no insights", "no insights", "raw data"): (
+        "That's where we come in 📊 We turn raw data into clear, actionable insights."
+    ),
+    ("how", "how?", "how do you do it", "how does it work"): (
+        "We build dashboards, reports, and predictive models so you can make smarter decisions."
+    ),
+    ("interesting", "that's interesting", "thats interesting", "cool"): (
+        "Want to see a sample dashboard or discuss your use case?"
+    ),
+    ("data analytics", "analytics", "data analysis", "data"): (
+        "📊 We turn raw data into clear, actionable insights.\n"
+        "We build dashboards, reports, and predictive models so you can make smarter decisions.\n\n"
+        "Want to see a sample dashboard?"
+    ),
+    ("do you provide cloud services", "cloud services", "cloud", "aws", "azure", "google cloud"): (
+        "Yes ☁️ We help businesses move to cloud platforms like AWS, Azure, and Google Cloud."
+    ),
+    ("is it secure", "secure", "security", "is it safe", "safe"): (
+        "Absolutely 🔐 We focus on security, scalability, and reliability."
+    ),
+    ("i'm interested", "im interested", "i am interested", "interested"): (
+        "That's great to hear! 😊 Can I have your name and email so our team can reach out?"
+    ),
+    ("i'm just exploring", "im just exploring", "just exploring", "exploring", "just looking"): (
+        "No problem at all 😊 Take your time. I'm here if you need anything!"
+    ),
+    ("what makes you different", "makes you different", "why choose you", "why zevoir", "what's different"): (
+        "Great question! 🚀 We focus on smart solutions, fast delivery, and real business impact."
     ),
     ("demo", "i want a demo", "book a demo", "schedule demo", "free demo"): (
         "Great! 🚀\n"
@@ -77,7 +133,8 @@ CHATBOT_RESPONSES = {
     ),
     ("thanks", "thank you", "thankyou", "thx", "ty", "thank u"): (
         "You're welcome! 😊\n"
-        "If you need anything else, feel free to ask."
+        "If you need anything else, just ask.\n"
+        "Let's build something amazing together!"
     ),
     ("yes", "yeah", "yep", "sure", "ok", "okay", "no", "nope", "nah"): (
         "Got it! 😊\n"
@@ -86,10 +143,9 @@ CHATBOT_RESPONSES = {
     ),
     ("bye", "goodbye", "see you", "see ya", "cya", "take care", "good bye"): (
         "Thank you for visiting! 👋\n"
-        "Have a wonderful day."
+        "Have a wonderful day. Let's build something amazing together!"
     ),
 }
-
 # Help response used for "contains help" check
 HELP_RESPONSE = (
     "Sure! I'm here to help 😊\n"
