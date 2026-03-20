@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Zevoir Genie</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,9 +21,23 @@
     }
 
     /* App is smaller and floating — not touching edges */
+    /* Mobile full screen */
+    @media (max-width: 520px) {
+      body { align-items: flex-start; background: #f0f4f8; }
+      .app {
+        width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+
     .app {
       width: 480px;
       height: 82vh;
+      height: 82dvh;
       display: flex;
       flex-direction: column;
       border-radius: 16px;
@@ -238,7 +254,7 @@
       padding: 9px 12px;
       color: #1a1a2e;
       font-family: Arial, sans-serif;
-      font-size: 0.85rem;
+      font-size: 16px;
       outline: none;
       transition: background 0.3s, color 0.3s, border-color 0.3s;
     }
@@ -304,7 +320,29 @@
     body.dark #send-btn { background: #00e5ff; color: black; }
     body.dark #send-btn:hover { background: #00b8cc; }
     body.dark .theme-label { color: #555e7a; }
-  </style>
+
+    /* ── MOBILE: full screen ── */
+    @media (max-width: 768px) {
+      body {
+        align-items: stretch;
+        justify-content: stretch;
+        padding: 0;
+        background: #f0f4f8;
+      }
+      .app {
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+      }
+      body.dark .app {
+        border: none;
+        box-shadow: none;
+      }
+    }
+    </style>
 </head>
 <body>
   <div class="app">
