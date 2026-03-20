@@ -242,6 +242,14 @@ def check_chatbot_response(user_input: str):
     Also catches any message that CONTAINS the word 'help'.
     Returns a response string or None.
     """
+    # ── Email check FIRST — before any keyword matching ──────────────────────
+    # Supports gmail, yahoo, outlook, and any other email format
+    if re.search(r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}', user_input):
+        return (
+            "Thanks! 😊 A team member will connect with you shortly.\n"
+            "We'll reach out to you at the email you provided. 📧"
+        )
+
     text = normalize(user_input)
 
     # Exact / phrase match
@@ -249,18 +257,12 @@ def check_chatbot_response(user_input: str):
         if text in keywords:
             return response
 
-    # Partial keyword match — catches "i need ai help" or "ok bye then" etc.
+    # Partial keyword match — uses word boundary so "ai" won't match inside "gmail"
     for keywords, response in CHATBOT_RESPONSES.items():
         for kw in keywords:
-            if kw in text:
+            # Only match if keyword is a whole word in the text
+            if re.search(r'\b' + re.escape(kw) + r'\b', text):
                 return response
-
-    # Detect email address anywhere in the message
-    if re.search(r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}', user_input):
-        return (
-            "Thanks! 😊 A team member will connect with you shortly.\n"
-            "We'll reach out to you at the email you provided. 📧"
-        )
 
     # Fallback: message contains "help" anywhere
     if "help" in text:
