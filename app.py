@@ -102,7 +102,7 @@ def normalize(text: str) -> str:
 
 # ── Chatbot keyword responses ──────────────────────────────────────────────────
 CHATBOT_RESPONSES = {
-    ("hi", "hello", "hey", "hiya", "howdy", "hai", "hii", "hiii"): (
+    ("hi", "hello", "hey", "hiya", "howdy", "hai", "hii", "hiii", "good morning", "good evening", "good afternoon", "good night", "gm", "morning", "evening", "afternoon"): (
         "Hey there! 👋 Welcome to Zevoir Technologies.\n"
         "What brings you here today?"
     ),
@@ -130,7 +130,7 @@ CHATBOT_RESPONSES = {
         "I can help with that! 📦\n"
         "Please enter your Order ID to check the latest status."
     ),
-    ("i can't login", "cant login", "i cant login", "login issue", "can't log in", "cant log in", "login problem", "forgot password", "cant sign in", "can't sign in"): (
+    ("i can't login", "cant login", "i cant login", "login issue", "login issues", "login problem", "login error", "can't log in", "cant log in", "cannot login", "can't sign in", "cant sign in", "sign in issue", "sign in problem", "forgot password", "reset password", "password issue", "password problem", "i forgot my password"): (
         "No worries! 🔐\n"
         "You can reset your password using the 'Forgot Password' option.\n"
         "Would you like me to send you the reset link?"
